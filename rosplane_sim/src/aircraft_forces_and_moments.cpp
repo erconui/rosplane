@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+
 #include "rosplane_sim/aircraft_forces_and_moments.h"
 
 namespace gazebo
@@ -25,12 +26,25 @@ AircraftForcesAndMoments::AircraftForcesAndMoments() {}
 
 AircraftForcesAndMoments::~AircraftForcesAndMoments()
 {
-  event::Events::DisconnectWorldUpdateBegin(updateConnection_);
+  updateConnection_.reset();
+  // event::Events::DisconnectWorldUpdateBegin(updateConnection_);
   if (nh_)
   {
     nh_->shutdown();
     delete nh_;
   }
+}
+
+bool AircraftForcesAndMoments::retrieveParameter(std::string name, double& destination)
+{
+  bool success = nh_->getParam(name, destination);
+  if (!success)
+  {
+    double tmp = nh_->param<double>(name, 10101.0);
+    //if hasParam returns true and getParam returns false then there is a problem with your yaml file, possibly commas
+    gzerr << "Unable to find parameter " << nh_->getNamespace() << "/" << name << " on server and has param returns: " << nh_->hasParam(name) << " and param returns " << tmp << "\n";
+  }
+  return success;
 }
 
 void AircraftForcesAndMoments::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
@@ -65,94 +79,94 @@ void AircraftForcesAndMoments::Load(physics::ModelPtr _model, sdf::ElementPtr _s
   // For the moments of inertia, look into using the BiFilar pendulum method
 
   // physical parameters
-  mass_ = nh_->param<double>("mass", 3.92);
-  Jx_ = nh_->param<double>("Jx", 0.213);
-  Jy_ = nh_->param<double>("Jy", 0.171);
-  Jz_ = nh_->param<double>("Jz", 0.350);
-  Jxz_ = nh_->param<double>("Jxz", 0.04);
-  rho_ = nh_->param<double>("rho", 1.268);
+  retrieveParameter("mass", mass_);
+  retrieveParameter("Jx", Jx_);
+  retrieveParameter("Jy", Jy_);
+  retrieveParameter("Jz", Jz_);
+  retrieveParameter("Jxz", Jxz_);
+  retrieveParameter("rho", rho_);
 
   // Wing Geometry
-  wing_.S = nh_->param<double>("wing_s", 0.468);
-  wing_.b = nh_->param<double>("wing_b", 1.8);
-  wing_.c = nh_->param<double>("wing_c", 0.26);
-  wing_.M = nh_->param<double>("wing_M", 50);
-  wing_.epsilon = nh_->param<double>("wing_epsilon", 0.159);
-  wing_.alpha0 = nh_->param<double>("wing_alpha0", 0.304);
+  retrieveParameter("wing_s", wing_.S);
+  retrieveParameter("wing_b", wing_.b);
+  retrieveParameter("wing_c", wing_.c);
+  retrieveParameter("wing_M", wing_.M);
+  retrieveParameter("wing_epsilon", wing_.epsilon);
+  retrieveParameter("wing_alpha0", wing_.alpha0);
 
   // Propeller Coefficients
-  prop_.k_motor = nh_->param<double>("k_motor", 40.0);
-  prop_.k_T_P = nh_->param<double>("k_T_P", 0.0);
-  prop_.k_Omega = nh_->param<double>("k_Omega", 0.0);
-  prop_.e = nh_->param<double>("prop_e", 0.8);
-  prop_.S = nh_->param<double>("prop_S", 0.0314);
-  prop_.C = nh_->param<double>("prop_C", 1.0);
+  retrieveParameter("k_motor", prop_.k_motor);
+  retrieveParameter("k_T_P", prop_.k_T_P);
+  retrieveParameter("k_Omega", prop_.k_Omega);
+  retrieveParameter("prop_e", prop_.e);
+  retrieveParameter("prop_S", prop_.S);
+  retrieveParameter("prop_C", prop_.C);
 
   // Lift Params
-  CL_.O = nh_->param<double>("C_L_O", 0.2869);
-  CL_.alpha = nh_->param<double>("C_L_alpha", 5.1378);
-  CL_.beta = nh_->param<double>("C_L_beta", 0.0);
-  CL_.p = nh_->param<double>("C_L_p", 0.0);
-  CL_.q = nh_->param<double>("C_L_q", 1.7102);
-  CL_.r = nh_->param<double>("C_L_r", 0.0);
-  CL_.delta_a = nh_->param<double>("C_L_delta_a", 0.0);
-  CL_.delta_e = nh_->param<double>("C_L_delta_e", 0.5202);
-  CL_.delta_r = nh_->param<double>("C_L_delta_r", 0.0);
+  retrieveParameter("C_L_O", CL_.O);
+  retrieveParameter("C_L_alpha", CL_.alpha);
+  retrieveParameter("C_L_beta", CL_.beta);
+  retrieveParameter("C_L_p", CL_.p);
+  retrieveParameter("C_L_q", CL_.q);
+  retrieveParameter("C_L_r", CL_.r);
+  retrieveParameter("C_L_delta_a", CL_.delta_a);
+  retrieveParameter("C_L_delta_e", CL_.delta_e);
+  retrieveParameter("C_L_delta_r", CL_.delta_r);
 
   // Drag Params
-  CD_.O = nh_->param<double>("C_D_O", 0.03087);
-  CD_.alpha = nh_->param<double>("C_D_alpha", 0.0043021);
-  CD_.beta = nh_->param<double>("C_D_beta", 0.0);
-  CD_.p = nh_->param<double>("C_D_p", 0.02815);
-  CD_.q = nh_->param<double>("C_D_q", 0.2514);
-  CD_.r = nh_->param<double>("C_D_r", 0.0);
-  CD_.delta_a = nh_->param<double>("C_D_delta_a", 0.0);
-  CD_.delta_e = nh_->param<double>("C_D_delta_e", 0.01879);
-  CD_.delta_r = nh_->param<double>("C_D_delta_r", 0.0);
+  retrieveParameter("C_D_O", CD_.O);
+  retrieveParameter("C_D_alpha", CD_.alpha);
+  retrieveParameter("C_D_beta", CD_.beta);
+  retrieveParameter("C_D_p", CD_.p);
+  retrieveParameter("C_D_q", CD_.q);
+  retrieveParameter("C_D_r", CD_.r);
+  retrieveParameter("C_D_delta_a", CD_.delta_a);
+  retrieveParameter("C_D_delta_e", CD_.delta_e);
+  retrieveParameter("C_D_delta_r", CD_.delta_r);
 
   // ell Params (x axis moment)
-  Cell_.O = nh_->param<double>("C_ell_O", 0.0);
-  Cell_.alpha = nh_->param<double>("C_ell_alpha", 0.00);
-  Cell_.beta = nh_->param<double>("C_ell_beta", 0.0193);
-  Cell_.p = nh_->param<double>("C_ell_p", -0.5406);
-  Cell_.q = nh_->param<double>("C_ell_q", 0.0);
-  Cell_.r = nh_->param<double>("C_ell_r", 0.1929);
-  Cell_.delta_a = nh_->param<double>("C_ell_delta_a", 0.2818);
-  Cell_.delta_e = nh_->param<double>("C_ell_delta_e", 0.0);
-  Cell_.delta_r = nh_->param<double>("C_ell_delta_r", 0.00096);
+  retrieveParameter("C_ell_O", Cell_.O);
+  retrieveParameter("C_ell_alpha", Cell_.alpha);
+  retrieveParameter("C_ell_beta", Cell_.beta);
+  retrieveParameter("C_ell_p", Cell_.p);
+  retrieveParameter("C_ell_q", Cell_.q);
+  retrieveParameter("C_ell_r", Cell_.r);
+  retrieveParameter("C_ell_delta_a", Cell_.delta_a);
+  retrieveParameter("C_ell_delta_e", Cell_.delta_e);
+  retrieveParameter("C_ell_delta_r", Cell_.delta_r);
 
   // m Params (y axis moment)
-  Cm_.O = nh_->param<double>("C_m_O", 0.0362);
-  Cm_.alpha = nh_->param<double>("C_m_alpha", -0.2627);
-  Cm_.beta = nh_->param<double>("C_m_beta", 0.0);
-  Cm_.p = nh_->param<double>("C_m_p", 0.0);
-  Cm_.q = nh_->param<double>("C_m_q", -9.7213);
-  Cm_.r = nh_->param<double>("C_m_r", 0.0);
-  Cm_.delta_a = nh_->param<double>("C_m_delta_a", 0.0);
-  Cm_.delta_e = nh_->param<double>("C_m_delta_e", -1.2392);
-  Cm_.delta_r = nh_->param<double>("C_m_delta_r", 0.0);
+  retrieveParameter("C_m_O", Cm_.O);
+  retrieveParameter("C_m_alpha", Cm_.alpha);
+  retrieveParameter("C_m_beta", Cm_.beta);
+  retrieveParameter("C_m_p", Cm_.p);
+  retrieveParameter("C_m_q", Cm_.q);
+  retrieveParameter("C_m_r", Cm_.r);
+  retrieveParameter("C_m_delta_a", Cm_.delta_a);
+  retrieveParameter("C_m_delta_e", Cm_.delta_e);
+  retrieveParameter("C_m_delta_r", Cm_.delta_r);
 
   // n Params (z axis moment)
-  Cn_.O = nh_->param<double>("C_n_O", 0.0);
-  Cn_.alpha = nh_->param<double>("C_n_alpha", 0.0);
-  Cn_.beta = nh_->param<double>("C_n_beta", 0.08557);
-  Cn_.p = nh_->param<double>("C_n_p", -0.0498);
-  Cn_.q = nh_->param<double>("C_n_q", 0.0);
-  Cn_.r = nh_->param<double>("C_n_r", -0.0572);
-  Cn_.delta_a = nh_->param<double>("C_n_delta_a", 0.0095);
-  Cn_.delta_e = nh_->param<double>("C_n_delta_e", 0.0);
-  Cn_.delta_r = nh_->param<double>("C_n_delta_r", -0.06);
+  retrieveParameter("C_n_O", Cn_.O);
+  retrieveParameter("C_n_alpha", Cn_.alpha);
+  retrieveParameter("C_n_beta", Cn_.beta);
+  retrieveParameter("C_n_p", Cn_.p);
+  retrieveParameter("C_n_q", Cn_.q);
+  retrieveParameter("C_n_r", Cn_.r);
+  retrieveParameter("C_n_delta_a", Cn_.delta_a);
+  retrieveParameter("C_n_delta_e", Cn_.delta_e);
+  retrieveParameter("C_n_delta_r", Cn_.delta_r);
 
   // Y Params (Sideslip Forces)
-  CY_.O = nh_->param<double>("C_Y_O", 0.0);
-  CY_.alpha = nh_->param<double>("C_Y_alpha", 0.00);
-  CY_.beta = nh_->param<double>("C_Y_beta", -0.2471);
-  CY_.p = nh_->param<double>("C_Y_p", -0.07278);
-  CY_.q = nh_->param<double>("C_Y_q", 0.0);
-  CY_.r = nh_->param<double>("C_Y_r", 0.1849);
-  CY_.delta_a = nh_->param<double>("C_Y_delta_a", -0.02344);
-  CY_.delta_e = nh_->param<double>("C_Y_delta_e", 0.0);
-  CY_.delta_r = nh_->param<double>("C_Y_delta_r", 0.1591);
+  retrieveParameter("C_Y_O", CY_.O);
+  retrieveParameter("C_Y_alpha", CY_.alpha);
+  retrieveParameter("C_Y_beta", CY_.beta);
+  retrieveParameter("C_Y_p", CY_.p);
+  retrieveParameter("C_Y_q", CY_.q);
+  retrieveParameter("C_Y_r", CY_.r);
+  retrieveParameter("C_Y_delta_a", CY_.delta_a);
+  retrieveParameter("C_Y_delta_e", CY_.delta_e);
+  retrieveParameter("C_Y_delta_r", CY_.delta_r);
 
   // Initialize Wind
   wind_.N = 0.0;
@@ -173,7 +187,7 @@ void AircraftForcesAndMoments::Load(physics::ModelPtr _model, sdf::ElementPtr _s
   wind_speed_sub_ = nh_->subscribe(wind_speed_topic_, 1, &AircraftForcesAndMoments::WindSpeedCallback, this);
 
   // Pull off initial pose so we can reset to it
-  initial_pose_ = link_->GetWorldCoGPose();
+  initial_pose_ = link_->WorldCoGPose();
 }
 
 // This gets called by the world update event.
@@ -220,14 +234,14 @@ void AircraftForcesAndMoments::UpdateForcesAndMoments()
   /* Get state information from Gazebo (in NED)                 *
    * C denotes child frame, P parent frame, and W world frame.  *
   //   * Further C_pose_W_P denotes pose of P wrt. W expressed in C.*/
-  math::Vector3 C_linear_velocity_W_C = link_->GetRelativeLinearVel();
-  double u = C_linear_velocity_W_C.x;
-  double v = -C_linear_velocity_W_C.y;
-  double w = -C_linear_velocity_W_C.z;
-  math::Vector3 C_angular_velocity_W_C = link_->GetRelativeAngularVel();
-  double p = C_angular_velocity_W_C.x;
-  double q = -C_angular_velocity_W_C.y;
-  double r = -C_angular_velocity_W_C.z;
+  ignition::math::Vector3d C_linear_velocity_W_C = link_->RelativeLinearVel();
+  double u = C_linear_velocity_W_C.X();
+  double v = -C_linear_velocity_W_C.Y();
+  double w = -C_linear_velocity_W_C.Z();
+  ignition::math::Vector3d C_angular_velocity_W_C = link_->RelativeAngularVel();
+  double p = C_angular_velocity_W_C.X();
+  double q = -C_angular_velocity_W_C.Y();
+  double r = -C_angular_velocity_W_C.Z();
 
   // wind info is available in the wind_ struct
   /// TODO: This is wrong. Wind is being applied in the body frame, not inertial frame
@@ -237,7 +251,7 @@ void AircraftForcesAndMoments::UpdateForcesAndMoments()
 
   double Va = sqrt(pow(ur, 2.0) + pow(vr, 2.0) + pow(wr, 2.0));
 
-  // Don't divide by zero, and don't let NaN's get through (sometimes GetRelativeLinearVel returns NaNs)
+  // Don't divide by zero, and don't let NaN's get through (sometimes RelativeLinearVel returns NaNs)
   if (Va > 0.000001 && std::isfinite(Va))
   {
     /*
@@ -316,8 +330,8 @@ void AircraftForcesAndMoments::SendForces()
   if (std::isfinite(forces_.Fx + forces_.Fy + forces_.Fz + forces_.l + forces_.m + forces_.n))
   {
     // apply the forces and torques to the joint
-    link_->AddRelativeForce(math::Vector3(forces_.Fx, -forces_.Fy, -forces_.Fz));
-    link_->AddRelativeTorque(math::Vector3(forces_.l, -forces_.m, -forces_.n));
+    link_->AddRelativeForce(ignition::math::Vector3d(forces_.Fx, -forces_.Fy, -forces_.Fz));
+    link_->AddRelativeTorque(ignition::math::Vector3d(forces_.l, -forces_.m, -forces_.n));
   }
 }
 

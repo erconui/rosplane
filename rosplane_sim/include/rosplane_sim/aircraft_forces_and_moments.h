@@ -57,6 +57,7 @@ protected:
   void OnUpdate(const common::UpdateInfo & /*_info*/);
 
 private:
+  bool retrieveParameter(std::string param_name, double& destination);
   std::string command_topic_;
   std::string wind_speed_topic_;
   std::string joint_name_;
@@ -157,7 +158,7 @@ private:
   double prev_sim_time_ = 0;
 
   // For reset handling
-  math::Pose initial_pose_;
+  ignition::math::Pose3d initial_pose_;
 
   ros::NodeHandle *nh_;
   ros::Subscriber command_sub_;
@@ -167,7 +168,7 @@ private:
   void WindSpeedCallback(const geometry_msgs::Vector3 &wind);
   void CommandCallback(const rosflight_msgs::CommandConstPtr &msg);
 
-  math::Vector3 wind_speed_W_;
+  ignition::math::Vector3d wind_speed_W_;
 };
 }
 
