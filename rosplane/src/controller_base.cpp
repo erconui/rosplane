@@ -15,42 +15,43 @@ controller_base::controller_base():
   memset(&vehicle_state_, 0, sizeof(vehicle_state_));
   memset(&controller_commands_, 0, sizeof(controller_commands_));
 
-  nh_private_.param<double>("TRIM_E", params_.trim_e, 0.0);
-  nh_private_.param<double>("TRIM_A", params_.trim_a, 0.0);
-  nh_private_.param<double>("TRIM_R", params_.trim_r, 0.0);
-  nh_private_.param<double>("TRIM_T", params_.trim_t, 0.6);
-  nh_private_.param<double>("PWM_RAD_E", params_.pwm_rad_e, 1.0);
-  nh_private_.param<double>("PWM_RAD_A", params_.pwm_rad_a, 1.0);
-  nh_private_.param<double>("PWM_RAD_R", params_.pwm_rad_r, 1.0);
-  nh_private_.param<double>("ALT_TOZ", params_.alt_toz, 20.0);
-  nh_private_.param<double>("ALT_HZ", params_.alt_hz, 10.0);
-  nh_private_.param<double>("TAU", params_.tau, 5.0);
-  nh_private_.param<double>("COURSE_KP", params_.c_kp, 0.7329);
-  nh_private_.param<double>("COURSE_KD", params_.c_kd, 0.0);
-  nh_private_.param<double>("COURSE_KI", params_.c_ki, 0.0);
-  nh_private_.param<double>("ROLL_KP", params_.r_kp, 1.2855);
-  nh_private_.param<double>("ROLL_KD", params_.r_kd, -0.325);
-  nh_private_.param<double>("ROLL_KI", params_.r_ki, 0.0);//0.10f);
-  nh_private_.param<double>("PITCH_KP", params_.p_kp, 1.0);
-  nh_private_.param<double>("PITCH_KD", params_.p_kd, -0.17);
-  nh_private_.param<double>("PITCH_KI", params_.p_ki, 0.0);
-  nh_private_.param<double>("PITCH_FF", params_.p_ff, 0.0);
-  nh_private_.param<double>("AS_PITCH_KP", params_.a_p_kp, -0.0713);
-  nh_private_.param<double>("AS_PITCH_KD", params_.a_p_kd, -0.0635);
-  nh_private_.param<double>("AS_PITCH_KI", params_.a_p_ki, 0.0);
-  nh_private_.param<double>("AS_THR_KP", params_.a_t_kp, 3.2);
-  nh_private_.param<double>("AS_THR_KD", params_.a_t_kd, 0.0);
-  nh_private_.param<double>("AS_THR_KI", params_.a_t_ki, 0.0);
-  nh_private_.param<double>("ALT_KP", params_.a_kp, 0.045);
-  nh_private_.param<double>("ALT_KD", params_.a_kd, 0.0);
-  nh_private_.param<double>("ALT_KI", params_.a_ki, 0.01);
-  nh_private_.param<double>("BETA_KP", params_.b_kp, -0.1164);
-  nh_private_.param<double>("BETA_KD", params_.b_kd, 0.0);
-  nh_private_.param<double>("BETA_KI", params_.b_ki, -0.0037111);
-  nh_private_.param<double>("MAX_E", params_.max_e, 0.610);
-  nh_private_.param<double>("MAX_A", params_.max_a, 0.523);
-  nh_private_.param<double>("MAX_R", params_.max_r, 0.523);
-  nh_private_.param<double>("MAX_T", params_.max_t, 1.0);
+  // nh_private_.param<double>("TRIM_E", params_.trim_e, 0.0);
+  retrieveParameter("autopilot/TRIM_E", params_.trim_e);
+  retrieveParameter("autopilot/TRIM_A", params_.trim_a);
+  retrieveParameter("autopilot/TRIM_R", params_.trim_r);
+  retrieveParameter("autopilot/TRIM_T", params_.trim_t);
+  retrieveParameter("autopilot/PWM_RAD_E", params_.pwm_rad_e);
+  retrieveParameter("autopilot/PWM_RAD_A", params_.pwm_rad_a);
+  retrieveParameter("autopilot/PWM_RAD_R", params_.pwm_rad_r);
+  retrieveParameter("autopilot/ALT_TOZ", params_.alt_toz);
+  retrieveParameter("autopilot/ALT_HZ", params_.alt_hz);
+  retrieveParameter("autopilot/TAU", params_.tau);
+  retrieveParameter("autopilot/COURSE_KP", params_.c_kp);
+  retrieveParameter("autopilot/COURSE_KD", params_.c_kd);
+  retrieveParameter("autopilot/COURSE_KI", params_.c_ki);
+  retrieveParameter("autopilot/ROLL_KP", params_.r_kp);
+  retrieveParameter("autopilot/ROLL_KD", params_.r_kd);
+  retrieveParameter("autopilot/ROLL_KI", params_.r_ki);
+  retrieveParameter("autopilot/PITCH_KP", params_.p_kp);
+  retrieveParameter("autopilot/PITCH_KD", params_.p_kd);
+  retrieveParameter("autopilot/PITCH_KI", params_.p_ki);
+  retrieveParameter("autopilot/PITCH_FF", params_.p_ff);
+  retrieveParameter("autopilot/AS_PITCH_KP", params_.a_p_kp);
+  retrieveParameter("autopilot/AS_PITCH_KD", params_.a_p_kd);
+  retrieveParameter("autopilot/AS_PITCH_KI", params_.a_p_ki);
+  retrieveParameter("autopilot/AS_THR_KP", params_.a_t_kp);
+  retrieveParameter("autopilot/AS_THR_KD", params_.a_t_kd);
+  retrieveParameter("autopilot/AS_THR_KI", params_.a_t_ki);
+  retrieveParameter("autopilot/ALT_KP", params_.a_kp);
+  retrieveParameter("autopilot/ALT_KD", params_.a_kd);
+  retrieveParameter("autopilot/ALT_KI", params_.a_ki);
+  retrieveParameter("autopilot/BETA_KP", params_.b_kp);
+  retrieveParameter("autopilot/BETA_KD", params_.b_kd);
+  retrieveParameter("autopilot/BETA_KI", params_.b_ki);
+  retrieveParameter("autopilot/MAX_E", params_.max_e);
+  retrieveParameter("autopilot/MAX_A", params_.max_a);
+  retrieveParameter("autopilot/MAX_R", params_.max_r);
+  retrieveParameter("autopilot/MAX_T", params_.max_t);
 
   func_ = boost::bind(&controller_base::reconfigure_callback, this, _1, _2);
   server_.setCallback(func_);
@@ -60,6 +61,20 @@ controller_base::controller_base():
   act_pub_timer_ = nh_.createTimer(ros::Duration(1.0/100.0), &controller_base::actuator_controls_publish, this);
 
   command_recieved_ = false;
+}
+
+bool controller_base::retrieveParameter(std::string name, double& destination)
+{
+  bool success = nh_.getParam(name, destination);
+  if (!success)
+  {
+    double tmp = nh_.param<double>(name, 10101.0);
+    //if hasParam returns true and getParam returns false then there is a problem with your yaml file, possibly commas
+    ROS_ERROR_STREAM("Unable to find parameter " << nh_.getNamespace() << "/" <<
+      name << " on server and has param returns: " << nh_.hasParam(name) <<
+      " and param returns " << tmp << "\n");
+  }
+  return success;
 }
 
 void controller_base::vehicle_state_callback(const rosplane_msgs::StateConstPtr &msg)

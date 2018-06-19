@@ -28,7 +28,7 @@ void controller_example::control(const params_s &params, const input_s &input, o
     output.phi_c = 0;
     output.delta_a = roll_hold(0.0, input.phi, input.p, params, input.Ts);
     output.delta_t = params.max_t;
-    output.theta_c = 15.0*3.14/180.0;
+    output.theta_c = 25.0*3.14/180.0;
     if (input.h >= params.alt_toz)
     {
       ROS_DEBUG("climb");

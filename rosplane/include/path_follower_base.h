@@ -74,6 +74,7 @@ private:
   struct params_s  params_;            /**< params */
   struct input_s input_;
 
+  bool retrieveParameter(std::string param_name, double& destination);
   void vehicle_state_callback(const rosplane_msgs::StateConstPtr &msg);
   bool state_init_;
   void current_path_callback(const rosplane_msgs::Current_PathConstPtr &msg);

@@ -13,9 +13,9 @@ path_follower_base::path_follower_base():
                       &path_follower_base::current_path_callback, this);
 
 
-  nh_private_.param<double>("CHI_INFTY", params_.chi_infty, 1.0472);
-  nh_private_.param<double>("K_PATH", params_.k_path, 0.025);
-  nh_private_.param<double>("K_ORBIT", params_.k_orbit, 4.0);
+  retrieveParameter("pathfollower/CHI_INFTY", params_.chi_infty);
+  retrieveParameter("pathfollower/K_PATH", params_.k_path);
+  retrieveParameter("pathfollower/K_ORBIT", params_.k_orbit);
 
   func_ = boost::bind(&path_follower_base::reconfigure_callback, this, _1, _2);
   server_.setCallback(func_);
@@ -25,6 +25,20 @@ path_follower_base::path_follower_base():
 
   state_init_ = false;
   current_path_init_ = false;
+}
+
+bool path_follower_base::retrieveParameter(std::string name, double& destination)
+{
+  bool success = nh_.getParam(name, destination);
+  if (!success)
+  {
+    double tmp = nh_.param<double>(name, 10101.0);
+    //if hasParam returns true and getParam returns false then there is a problem with your yaml file, possibly commas
+    ROS_ERROR_STREAM("Unable to find parameter " << nh_.getNamespace() << "/" <<
+      name << " on server and has param returns: " << nh_.hasParam(name) <<
+      " and param returns " << tmp << "\n");
+  }
+  return success;
 }
 
 void path_follower_base::update(const ros::TimerEvent &)

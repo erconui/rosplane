@@ -120,6 +120,7 @@ private:
   rosplane_msgs::Controller_Commands controller_commands_;
   rosplane_msgs::State vehicle_state_;
 
+  bool retrieveParameter(std::string param_name, double& destination);
   void vehicle_state_callback(const rosplane_msgs::StateConstPtr &msg);
   void controller_commands_callback(const rosplane_msgs::Controller_CommandsConstPtr &msg);
   bool command_recieved_;
